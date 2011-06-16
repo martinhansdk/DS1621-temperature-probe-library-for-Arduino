@@ -1,10 +1,11 @@
+#include "WProgram.h"
 #include "DS1621.h"
-
+#include <Wire.h>
 // based on code from McPhalen published at http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1198065647
 
 
 
-DS1621::DS1621(byte i2c_addr) {
+DS1621::DS1621(uint8_t i2c_addr) {
   addr=i2c_addr;
   Wire.begin();
 }
@@ -14,29 +15,9 @@ DS1621::DS1621(byte i2c_addr) {
 #define DEV_ADDR   0x00                         // DS1621 address is 0
 #define SLAVE_ID   DEV_TYPE | DEV_ADDR
 
-// DS1621 Registers & Commands
-
-#define RD_TEMP    0xAA                         // read temperature register
-#define ACCESS_TH  0xA1                         // access high temperature register
-#define ACCESS_TL  0xA2                         // access low temperature register
-#define ACCESS_CFG 0xAC                         // access configuration register
-#define RD_CNTR    0xA8                         // read counter register
-#define RD_SLOPE   0xA9                         // read slope register
-#define START_CNV  0xEE                         // start temperature conversion
-#define STOP_CNV   0X22                         // stop temperature conversion
-
-// DS1621 configuration bits
-
-#define DONE       B10000000                    // conversion is done
-#define THF        B01000000                    // high temp flag
-#define TLF        B00100000                    // low temp flag
-#define NVB        B00010000                    // non-volatile memory is busy
-#define POL        B00000010                    // output polarity (1 = high, 0 = low)
-#define ONE_SHOT   B00000001                    // 1 = one conversion; 0 = continuous conversion
-
 // Set configuration register
 
-void DS1621::setConfig(byte cfg)
+void DS1621::setConfig(uint8_t cfg)
 {
  Wire.beginTransmission(SLAVE_ID);
  Wire.send(ACCESS_CFG);
@@ -48,13 +29,13 @@ void DS1621::setConfig(byte cfg)
 
 // Read a DS1621 register
 
-byte DS1621::getReg(byte reg)
+uint8_t DS1621::getReg(uint8_t reg)
 {
  Wire.beginTransmission(SLAVE_ID);
  Wire.send(reg);                               // set register to read
  Wire.endTransmission();
  Wire.requestFrom(SLAVE_ID, 1);
- byte regVal = Wire.receive();
+ uint8_t regVal = Wire.receive();
  return regVal;
 }
 
@@ -63,12 +44,12 @@ byte DS1621::getReg(byte reg)
 // -- whole degrees C only
 // -- works only with ACCESS_TL and ACCESS_TH
 
-void DS1621::setThresh(byte reg, int tC)
+void DS1621::setThresh(uint8_t reg, int tC)
 {
  if (reg == ACCESS_TL || reg == ACCESS_TH) {
    Wire.beginTransmission(addr);
    Wire.send(reg);                             // select temperature reg
-   Wire.send(byte(tC));                        // set threshold
+   Wire.send(uint8_t(tC));                        // set threshold
    Wire.send(0);                               // clear fractional bit
    Wire.endTransmission();
    delay(15);
@@ -78,7 +59,7 @@ void DS1621::setThresh(byte reg, int tC)
 
 // Start/Stop DS1621 temperature conversion
 
-void DS1621::startConversion(boolean start)
+void DS1621::startConversion(bool start)
 {
  Wire.beginTransmission(addr);
  if (start == true)
@@ -93,12 +74,12 @@ void DS1621::startConversion(boolean start)
 // -- whole degrees C only
 // -- works only with RD_TEMP, ACCESS_TL, and ACCESS_TH
 
-int DS1621::getTemp(byte reg)
+int DS1621::getTemp(uint8_t reg)
 {
  int tC;
 
  if (reg == RD_TEMP || reg == ACCESS_TL || reg == ACCESS_TH) {
-   byte tVal = getReg(reg);
+   uint8_t tVal = getReg(reg);
    if (tVal >= B10000000) {                    // negative?
      tC = 0xFF00 | tVal;                       // extend sign bits
    }
@@ -118,14 +99,14 @@ int DS1621::getTemp(byte reg)
 int DS1621::getHrTemp()
 {
  startConversion(true);                        // initiate conversion
- byte cfg = 0;
+ uint8_t cfg = 0;
  while (!(cfg & DONE)) {                          // let it finish
    cfg = getReg(ACCESS_CFG);
  }
 
  int tHR = getTemp(RD_TEMP);                   // get whole degrees reading
- byte cRem = getReg(RD_CNTR);                  // get counts remaining
- byte slope = getReg(RD_SLOPE);                // get counts per degree
+ uint8_t cRem = getReg(RD_CNTR);                  // get counts remaining
+ uint8_t slope = getReg(RD_SLOPE);                // get counts per degree
 
  if (tHR >= 0)
    tHR = (tHR * 100 - 25) + ((slope - cRem) * 100 / slope);
