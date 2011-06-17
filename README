@@ -1,0 +1,6 @@
+DS1621 temperature probe library for Arduino
+============================================
+
+Heavily based on code from McPhalen published at
+http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1198065647
+
