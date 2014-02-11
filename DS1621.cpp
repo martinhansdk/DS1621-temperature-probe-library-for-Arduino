@@ -1,4 +1,4 @@
-#include "WProgram.h"
+#include "Arduino.h"
 #include "DS1621.h"
 #include <Wire.h>
 // based on code from McPhalen published at http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1198065647
@@ -20,8 +20,8 @@ DS1621::DS1621(uint8_t i2c_addr) {
 void DS1621::setConfig(uint8_t cfg)
 {
  Wire.beginTransmission(SLAVE_ID);
- Wire.send(ACCESS_CFG);
- Wire.send(cfg);
+ Wire.write(ACCESS_CFG);
+ Wire.write(cfg);
  Wire.endTransmission();
  delay(15);                                    // allow EE write time to finish
 }
@@ -32,10 +32,10 @@ void DS1621::setConfig(uint8_t cfg)
 uint8_t DS1621::getReg(uint8_t reg)
 {
  Wire.beginTransmission(SLAVE_ID);
- Wire.send(reg);                               // set register to read
+ Wire.write(reg);                               // set register to read
  Wire.endTransmission();
  Wire.requestFrom(SLAVE_ID, 1);
- uint8_t regVal = Wire.receive();
+ uint8_t regVal = Wire.read();
  return regVal;
 }
 
@@ -48,9 +48,9 @@ void DS1621::setThresh(uint8_t reg, int tC)
 {
  if (reg == ACCESS_TL || reg == ACCESS_TH) {
    Wire.beginTransmission(addr);
-   Wire.send(reg);                             // select temperature reg
-   Wire.send(uint8_t(tC));                        // set threshold
-   Wire.send(0);                               // clear fractional bit
+   Wire.write(reg);                             // select temperature reg
+   Wire.write(uint8_t(tC));                        // set threshold
+   Wire.write((uint8_t)0);                               // clear fractional bit
    Wire.endTransmission();
    delay(15);
  }
@@ -63,9 +63,9 @@ void DS1621::startConversion(bool start)
 {
  Wire.beginTransmission(addr);
  if (start == true)
-   Wire.send(START_CNV);
+   Wire.write(START_CNV);
  else
-   Wire.send(STOP_CNV);
+   Wire.write(STOP_CNV);
  Wire.endTransmission();
 }
 
@@ -76,9 +76,8 @@ void DS1621::startConversion(bool start)
 
 int DS1621::getTemp(uint8_t reg)
 {
- int tC;
-
  if (reg == RD_TEMP || reg == ACCESS_TL || reg == ACCESS_TH) {
+   int tC;
    uint8_t tVal = getReg(reg);
    if (tVal >= B10000000) {                    // negative?
      tC = 0xFF00 | tVal;                       // extend sign bits
