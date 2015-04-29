@@ -1,0 +1,39 @@
+#######################################
+# Syntax Coloring Map For DS1621
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+DS1621	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+setConfig	KEYWORD2
+getReg	KEYWORD2
+setThresh	KEYWORD2
+startConversion	KEYWORD2
+getTemp	KEYWORD2
+getHrTemp KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+RD_TEMP LITERAL1
+ACCESS_TH LITERAL1
+ACCESS_TL LITERAL1
+ACCESS_CFG LITERAL1
+RD_CNTR LITERAL1
+RD_SLOPE LITERAL1
+START_CNV LITERAL1
+STOP_CNV LITERAL1
+DONE LITERAL1
+THF LITERAL1
+TLF LITERAL1
+NVB LITERAL1
+POL LITERAL1
+ONE_SHOT LITERAL1
