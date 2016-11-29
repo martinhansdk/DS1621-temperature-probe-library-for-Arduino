@@ -80,7 +80,7 @@ int DS1621::getTemp(uint8_t reg)
    int tC;
    uint8_t tVal = getReg(reg);
    if (tVal >= B10000000) {                    // negative?
-     tC = 0xFF00 | tVal;                       // extend sign bits
+     tC = 0xFFFFFF00 | tVal;                   // extend sign bits
    }
    else {
      tC = tVal;
@@ -111,7 +111,7 @@ int DS1621::getHrTemp()
    tHR = (tHR * 100 - 25) + ((slope - cRem) * 100 / slope);
  else {
    tHR = -tHR;
-   tHR = (25 - tHR * 100) + ((slope - cRem) * 100 / slope);
+   tHR = (-25 - tHR * 100) + ((slope - cRem) * 100 / slope);
  }
  return tHR;
 }
